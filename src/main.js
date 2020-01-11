@@ -18,7 +18,7 @@ class App {
   setLoading(loading = true) {
     if (loading === true) {
       let loadingEl = document.createElement('span');
-      loadingEl.appendChild(document.createTextNode('Carregando'));
+      loadingEl.appendChild(document.createTextNode('Loading...'));
       loadingEl.setAttribute('id', 'loading');
 
       this.formEl.appendChild(loadingEl);
@@ -40,22 +40,29 @@ class App {
     try{
       const response = await api.get(`./users/${repoInput}/repos`);
 
-      for (let index = 0; index < response.data.length; index++) {
-        const { name, description, owner: { avatar_url }, html_url } = response.data[index];
+      if (response.data.length === 0) {
+        alert('This user does not have any repository on GitHub.');
+        this.inputEl.value = '';
+        this.setLoading(false);
+        return;
+      } else {
+        for (let index = 0; index < response.data.length; index++) {
+          const { name, description, owner: { avatar_url }, html_url } = response.data[index];
 
-        this.repositories.push({
-          name,
-          description,
-          avatar_url,
-          html_url
-        });
+          this.repositories.push({
+            name,
+            description,
+            avatar_url,
+            html_url
+          });
+        }
+
+        this.inputEl.value = '';
+
+        this.render();
       }
-
-      this.inputEl.value = '';
-
-      this.render();
     } catch (err) {
-      alert('O repositório não existe!');
+      alert('This user does not exist!');
     }
 
     this.setLoading(false);
